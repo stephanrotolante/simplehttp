@@ -63,7 +63,7 @@ func TestAddHeader(t *testing.T) {
 
 	httpRequest.AddHeader("some_header_name", "some_header_value")
 
-	if httpRequest.request.Header.Get("some_header_name") != "some_header_value" {
+	if httpRequest.headers.Get("some_header_name") != "some_header_value" {
 		t.Error("header not added")
 		return
 	}

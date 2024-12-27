@@ -9,7 +9,8 @@ import (
 type HttpReqest struct {
 	method  string
 	url     string
-	request http.Request
+	headers http.Header
+	cookie  []*http.Cookie
 	body    io.Reader
 }
 
@@ -23,9 +24,10 @@ func CustomClient(client *http.Client) {
 
 func CreateHttpRequest(url string) HttpReqest {
 	return HttpReqest{
-		method: http.MethodGet,
-		body:   nil,
-		url:    url,
+		method:  http.MethodGet,
+		body:    nil,
+		url:     url,
+		headers: make(http.Header),
 	}
 }
 
@@ -63,17 +65,12 @@ func (h *HttpReqest) Body(body []byte) *HttpReqest {
 }
 
 func (h *HttpReqest) AddCookie(cookie *http.Cookie) *HttpReqest {
-	h.request.AddCookie(cookie)
+	h.cookie = append(h.cookie, cookie)
 	return h
 }
 
 func (h *HttpReqest) AddHeader(key, value string) *HttpReqest {
-	if h.request.Header == nil {
-		h.request.Header = make(http.Header)
-	}
-
-	h.request.Header.Add(key, value)
-
+	h.headers.Add(key, value)
 	return h
 }
 
@@ -89,6 +86,12 @@ func (h *HttpReqest) ExecuteWithClient(client http.Client) (*http.Response, erro
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	req.Header = h.headers
+
+	for _, cookie := range h.cookie {
+		req.AddCookie(cookie)
 	}
 
 	resp, err := client.Do(req)
