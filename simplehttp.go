@@ -62,6 +62,11 @@ func (h *HttpReqest) Body(body []byte) *HttpReqest {
 	return h
 }
 
+func (h *HttpReqest) AddCookie(cookie *http.Cookie) *HttpReqest {
+	h.request.AddCookie(cookie)
+	return h
+}
+
 func (h *HttpReqest) AddHeader(key, value string) *HttpReqest {
 	if h.request.Header == nil {
 		h.request.Header = make(http.Header)
